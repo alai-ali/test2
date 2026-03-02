@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSMLH — Human Intelligence Protection</title>
+    <title>BSMLH — Secure HUID Access</title>
     <style>
-        :root { --bg: #000000; --text: #ffffff; --secondary: #8e8e93; --accent: #ffffff; --gold: #f6851b; }
+        :root { --bg: #000000; --text: #ffffff; --secondary: #8e8e93; --accent: #ffffff; --gold: #f6851b; --error: #ff4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; justify-content: center; align-items: center; overflow: hidden; }
         .lang-switch { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; z-index: 100; }
@@ -21,8 +21,7 @@
         .card-title { color: var(--secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .card-value { font-size: 22px; font-weight: 500; }
         .status-badge { position: absolute; top: 20px; right: 20px; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
-        .footer-note { position: absolute; bottom: 40px; font-size: 12px; color: var(--secondary); text-align: center; width: 100%; }
-        #huid-tag { font-family: monospace; color: var(--gold); margin-top: 15px; font-size: 14px; }
+        #status-msg { margin-top: 20px; font-size: 13px; color: var(--gold); min-height: 20px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -36,9 +35,10 @@
     <div class="main-container" id="app-content">
         <div class="logo">BSMLH</div>
         <div class="btn-group">
-            <button class="primary-btn" id="login-btn-text" onclick="scanNFC()">Войти (NFC)</button>
+            <button class="primary-btn" id="login-btn-text" onclick="secureLogin()">Войти (NFC)</button>
             <button class="secondary-btn" id="reg-btn-text" onclick="startOnboarding()">Зарегистрироваться</button>
         </div>
+        <div id="status-msg"></div>
     </div>
 
     <div class="dashboard" id="main-dashboard">
@@ -53,62 +53,100 @@
         </div>
         <div class="card">
             <div class="card-title">QRT Balance</div>
-            <div class="card-value" id="qrt-val">1.00 QRT</div>
-            <div style="font-size: 11px; color: #44ff44; margin-top: 5px;" id="qrt-plus">+1.00 Registration</div>
+            <div class="card-value">1.00 QRT</div>
+            <div style="font-size: 11px; color: #44ff44; margin-top: 5px;">+1.00 Registration</div>
         </div>
         <div class="card">
             <div class="card-title">QRNC Reputation</div>
-            <div class="card-value" id="qrnc-val">0.01 <span style="font-size: 14px; color: var(--secondary);">XP</span></div>
+            <div class="card-value">0.01 XP</div>
             <div style="height: 4px; background: #222; width: 100%; margin-top: 10px; border-radius: 2px; overflow: hidden;">
                 <div style="height: 100%; background: var(--gold); width: 10%;"></div>
             </div>
         </div>
-        <button class="secondary-btn" style="margin-top: 10px; border-color: #222; font-size: 13px;" onclick="location.reload()">Выйти</button>
+        <button class="secondary-btn" style="margin-top: 20px; border-color: #222;" onclick="location.reload()">Выйти</button>
     </div>
-
-    <div class="footer-note" id="footer-text">Universal Human Identification System</div>
 
     <script>
         let selectedLang = 'ru';
         let currentStep = 0;
+        let tempHUID = "";
 
         const translations = {
             ru: {
                 login: "Войти (NFC)", reg: "Зарегистрироваться", welcome: "Добро пожаловать,",
                 cardId: "Личность", verified: "Верифицирован 🛡️", next: "Далее",
                 kycTitle: "Верификация", kycScan: "📸 Нажмите для сканирования паспорта",
-                statusGen: "⌛ Генерация HUID...", statusOk: "✅ Готово. Приложите чип",
-                nfcError: "NFC не поддерживается этим устройством или браузером",
-                nfcWaiting: "Поднесите кольцо к задней панели телефона..."
+                statusGen: "⌛ Генерация HUID...", statusOk: "✅ Готово. Приложите кольцо для привязки",
+                nfcWaiting: "Поднесите ваше кольцо...", nfcError: "NFC не поддерживается",
+                accessDenied: "❌ ОШИБКА: Это кольцо не зарегистрировано!",
+                bindSuccess: "✅ Кольцо успешно привязано к вашему HUID!"
             },
             en: {
                 login: "Login (NFC)", reg: "Register", welcome: "Welcome back,",
                 cardId: "Identity", verified: "Verified 🛡️", next: "Next",
                 kycTitle: "Verification", kycScan: "📸 Tap to scan passport",
-                statusGen: "⌛ Generating HUID...", statusOk: "✅ Ready. Tap chip",
-                nfcError: "NFC is not supported on this device/browser",
-                nfcWaiting: "Bring the ring to the back of the phone..."
+                statusGen: "⌛ Generating HUID...", statusOk: "✅ Ready. Tap ring to bind",
+                nfcWaiting: "Bring your ring closer...", nfcError: "NFC not supported",
+                accessDenied: "❌ ERROR: This ring is not registered!",
+                bindSuccess: "✅ Ring successfully bound to your HUID!"
             }
         };
 
-        async function scanNFC() {
+        // ФУНКЦИЯ БЕЗОПАСНОГО ВХОДА
+        async function secureLogin() {
             const d = translations[selectedLang];
+            const msg = document.getElementById('status-msg');
+            const savedUID = localStorage.getItem('registered_nfc_uid');
+
+            if (!savedUID) {
+                msg.innerText = selectedLang === 'ru' ? "Сначала зарегистрируйтесь!" : "Register first!";
+                return;
+            }
+
             if ('NDEFReader' in window) {
                 try {
                     const ndef = new NDEFReader();
                     await ndef.scan();
-                    document.getElementById('login-btn-text').innerText = d.nfcWaiting;
+                    msg.innerText = d.nfcWaiting;
                     
                     ndef.onreading = event => {
-                        // Если чип считан успешно
-                        showDashboard("HUID-2026-" + event.serialNumber.replace(/:/g, "").toUpperCase().slice(0, 8));
+                        const currentUID = event.serialNumber;
+                        if (currentUID === savedUID) {
+                            showDashboard(localStorage.getItem('user_huid'));
+                        } else {
+                            msg.style.color = "var(--error)";
+                            msg.innerText = d.accessDenied;
+                        }
                     };
-                } catch (error) {
-                    alert(d.nfcError + ": " + error);
-                }
+                } catch (e) { msg.innerText = d.nfcError; }
             } else {
-                alert(d.nfcError);
-                showDashboard(); // Эмуляция для ПК
+                // Эмуляция для ПК (входим под сохраненным ID)
+                showDashboard(localStorage.getItem('user_huid') || "HUID-2026-DEMO");
+            }
+        }
+
+        // ПРИВЯЗКА КОЛЬЦА ПРИ РЕГИСТРАЦИИ
+        async function bindRing(huid) {
+            const d = translations[selectedLang];
+            const st = document.getElementById('st-text');
+            
+            if ('NDEFReader' in window) {
+                try {
+                    const ndef = new NDEFReader();
+                    await ndef.scan();
+                    st.innerText = d.statusOk;
+
+                    ndef.onreading = event => {
+                        localStorage.setItem('registered_nfc_uid', event.serialNumber);
+                        localStorage.setItem('user_huid', huid);
+                        st.innerText = d.bindSuccess;
+                        setTimeout(() => showDashboard(huid), 2000);
+                    };
+                } catch (e) { showDashboard(huid); }
+            } else {
+                localStorage.setItem('registered_nfc_uid', "PC-EMULATOR");
+                localStorage.setItem('user_huid', huid);
+                setTimeout(() => showDashboard(huid), 2000);
             }
         }
 
@@ -131,12 +169,7 @@
         function renderStep() {
             const cont = document.getElementById('app-content');
             const d = translations[selectedLang];
-            const steps = [
-                { title: "Что такое HUID?", desc: "Ваш уникальный цифровой отпечаток." },
-                { title: "BSMLH CHIP", desc: "Кольцо — физический ключ, который нельзя скопировать." },
-                { title: "Данные", desc: "Блокчейн-защита ваших прав." }
-            ];
-            
+            const steps = d.steps;
             if (currentStep < steps.length) {
                 cont.innerHTML = `
                     <div style="font-size: 12px; color: var(--secondary); margin-bottom: 20px;">${currentStep+1}/3</div>
@@ -154,7 +187,7 @@
                 <div id="scan-box" style="border: 1px dashed #333; padding: 40px; border-radius: 8px; cursor: pointer;" onclick="runKYC()">
                     <span id="st-text">${d.kycScan}</span>
                 </div>
-                <div id="huid-tag"></div>
+                <div id="huid-tag" style="min-height: 20px; margin-top: 10px;"></div>
             `;
         }
 
@@ -165,13 +198,11 @@
             setTimeout(() => {
                 const id = "HUID-2026-" + Math.random().toString(16).slice(2,10).toUpperCase();
                 document.getElementById('huid-tag').innerText = id;
-                st.innerText = d.statusOk;
-                st.style.color = "#f6851b";
-                setTimeout(() => { showDashboard(id); }, 2500);
+                bindRing(id);
             }, 2000);
         }
 
-        function showDashboard(id = "HUID-2026-BBD565AD") {
+        function showDashboard(id) {
             document.getElementById('app-content').style.display = 'none';
             document.getElementById('main-dashboard').style.display = 'flex';
             document.getElementById('user-huid-display').innerText = id;
