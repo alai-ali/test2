@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSMLH — Secure HUID</title>
+    <title>BSMLH — Secure HUID Access</title>
     <style>
         :root { --bg: #000000; --text: #ffffff; --secondary: #8e8e93; --accent: #ffffff; --gold: #f6851b; --error: #ff4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; justify-content: center; align-items: center; overflow: hidden; }
-        
         .lang-switch { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; z-index: 100; }
         .lang-btn { background: none; border: none; color: var(--secondary); cursor: pointer; font-size: 13px; text-transform: uppercase; }
         .lang-btn.active { color: var(--text); font-weight: bold; }
-
-        .main-container { text-align: center; width: 100%; max-width: 400px; padding: 20px; display: block; }
+        .main-container { text-align: center; width: 100%; max-width: 400px; padding: 20px; }
         .logo { font-size: 32px; font-weight: 500; letter-spacing: 8px; margin-bottom: 60px; }
-        
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .primary-btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 4px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; }
         .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 14px; border-radius: 4px; font-size: 15px; cursor: pointer; width: 100%; }
-
-        .dashboard { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; text-align: left; padding: 20px; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; position: relative; }
+        .dashboard { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; text-align: left; padding: 20px; animation: fadeIn 0.5s ease; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; position: relative; cursor: pointer; transition: 0.3s; }
+        .card:active { transform: scale(0.98); background: #1a1a1a; }
         .card-title { color: var(--secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
         .card-value { font-size: 22px; font-weight: 500; }
         .status-badge { position: absolute; top: 20px; right: 20px; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
-        
         #status-msg { margin-top: 20px; font-size: 13px; color: var(--gold); min-height: 20px; text-align: center; }
-        #huid-tag { font-family: monospace; color: var(--gold); margin-top: 15px; font-size: 14px; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -54,17 +50,17 @@
             <div style="font-size: 14px; color: var(--secondary);" id="welcome-text">Добро пожаловать,</div>
             <div id="user-huid-display" style="font-weight: 500; letter-spacing: 1px; font-size: 18px;">HUID-2026-XXXX</div>
         </div>
-        <div class="card">
+        <div class="card" onclick="alert('Личность подтверждена биометрией и кольцом')">
             <div class="status-badge">Soulbound</div>
             <div class="card-title" id="card-id-label">Личность</div>
             <div class="card-value" id="card-id-val">Верифицирован 🛡️</div>
         </div>
-        <div class="card">
+        <div class="card" onclick="patentIdea()">
             <div class="card-title">QRT Balance</div>
             <div class="card-value">1.00 QRT</div>
             <div style="font-size: 11px; color: #44ff44; margin-top: 5px;">+1.00 Registration</div>
         </div>
-        <div class="card">
+        <div class="card" onclick="alert('Репутация рассчитывается на основе ваших патентов')">
             <div class="card-title">QRNC Reputation</div>
             <div class="card-value">0.01 XP</div>
             <div style="height: 4px; background: #222; width: 100%; margin-top: 10px; border-radius: 2px; overflow: hidden;">
@@ -84,13 +80,15 @@
                 cardId: "Личность", verified: "Верифицирован 🛡️", next: "Далее",
                 kycTitle: "Верификация", kycScan: "📸 Нажмите для сканирования паспорта",
                 statusGen: "⌛ Генерация HUID...", statusOk: "✅ Готово. Приложите кольцо",
-                nfcWaiting: "Поднесите кольцо...", nfcError: "NFC не поддерживается",
-                accessDenied: "❌ ОШИБКА: Кольцо не узнано!",
+                nfcWaiting: "Поднесите кольцо...", nfcError: "NFC не поддерживается. Введите код доступа.",
+                accessDenied: "❌ ОШИБКА: Кольцо не зарегистрировано!",
                 regFirst: "Сначала зарегистрируйтесь!",
+                patentPrompt: "Опишите вашу идею для записи в блокчейн:",
+                patentSuccess: "Идея принята! Патент формируется...",
                 steps: [
                     { title: "HUID", desc: "Ваш уникальный цифровой отпечаток." },
                     { title: "BSMLH CHIP", desc: "Кольцо — это физический ключ." },
-                    { title: "Безопасность", desc: "Ваши данные защищены блокчейном." }
+                    { title: "Безопасность", desc: "Защищено блокчейном." }
                 ]
             },
             en: {
@@ -98,35 +96,25 @@
                 cardId: "Identity", verified: "Verified 🛡️", next: "Next",
                 kycTitle: "Verification", kycScan: "📸 Tap to scan passport",
                 statusGen: "⌛ Generating HUID...", statusOk: "✅ Ready. Tap ring",
-                nfcWaiting: "Bring your ring closer...", nfcError: "NFC not supported",
+                nfcWaiting: "Bring your ring closer...", nfcError: "NFC not supported. Enter access code.",
                 accessDenied: "❌ ERROR: Ring not recognized!",
                 regFirst: "Please register first!",
+                patentPrompt: "Describe your idea for blockchain entry:",
+                patentSuccess: "Idea accepted! Patent is being formed...",
                 steps: [
                     { title: "HUID", desc: "Your unique digital fingerprint." },
                     { title: "BSMLH CHIP", desc: "The ring is your physical key." },
-                    { title: "Security", desc: "Your data is secured by blockchain." }
+                    { title: "Security", desc: "Secured by blockchain." }
                 ]
             }
         };
-
-        function setLang(lang) {
-            selectedLang = lang;
-            const d = translations[lang];
-            document.getElementById('login-btn-text').innerText = d.login;
-            document.getElementById('reg-btn-text').innerText = d.reg;
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(lang + '-btn').classList.add('active');
-        }
 
         async function secureLogin() {
             const d = translations[selectedLang];
             const msg = document.getElementById('status-msg');
             const savedUID = localStorage.getItem('nfc_uid');
 
-            if (!savedUID) {
-                msg.innerText = d.regFirst;
-                return;
-            }
+            if (!savedUID) { msg.innerText = d.regFirst; return; }
 
             if ('NDEFReader' in window) {
                 try {
@@ -141,10 +129,32 @@
                             msg.innerText = d.accessDenied;
                         }
                     };
-                } catch (e) { alert(d.nfcError); }
-            } else {
-                showDashboard(localStorage.getItem('huid'));
+                } catch (e) { pcFallback(); }
+            } else { pcFallback(); }
+        }
+
+        function pcFallback() {
+            const code = prompt(translations[selectedLang].nfcError);
+            if (code === "1234") {
+                showDashboard(localStorage.getItem('huid') || "HUID-2026-DEMO");
+            } else if (code !== null) {
+                alert("Неверный код доступа!");
             }
+        }
+
+        function patentIdea() {
+            const d = translations[selectedLang];
+            const idea = prompt(d.patentPrompt);
+            if (idea) alert(d.patentSuccess);
+        }
+
+        function setLang(lang) {
+            selectedLang = lang;
+            const d = translations[lang];
+            document.getElementById('login-btn-text').innerText = d.login;
+            document.getElementById('reg-btn-text').innerText = d.reg;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(lang + '-btn').classList.add('active');
         }
 
         function startOnboarding() {
@@ -163,9 +173,7 @@
                     <p style="color: #8e8e93; margin-bottom: 40px;">${d.steps[currentStep].desc}</p>
                     <button class="primary-btn" onclick="currentStep++; renderStep()">${d.next}</button>
                 `;
-            } else {
-                renderKYC();
-            }
+            } else { renderKYC(); }
         }
 
         function renderKYC() {
@@ -198,12 +206,8 @@
                             localStorage.setItem('huid', newHuid);
                             showDashboard(newHuid);
                         };
-                    } catch (e) { 
-                        saveAndShow(newHuid);
-                    }
-                } else {
-                    saveAndShow(newHuid);
-                }
+                    } catch (e) { saveAndShow(newHuid); }
+                } else { saveAndShow(newHuid); }
             }, 2000);
         }
 
