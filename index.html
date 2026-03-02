@@ -3,183 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSMLH — Secure HUID Access</title>
+    <title>BSMLH Ledger</title>
     <style>
-        :root { --bg: #000000; --text: #ffffff; --secondary: #8e8e93; --accent: #ffffff; --gold: #f6851b; --card-bg: #111111; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        .main-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-        .logo { font-size: 32px; font-weight: 500; letter-spacing: 8px; margin-bottom: 60px; }
-        
-        .btn-group { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 350px; }
-        .primary-btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 4px; font-size: 15px; font-weight: 500; cursor: pointer; }
-        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 14px; border-radius: 4px; font-size: 15px; cursor: pointer; }
-
-        /* Camera UI */
-        #camera-ui { display: none; width: 100%; max-width: 350px; }
-        .video-wrap { width: 220px; height: 280px; margin: 0 auto 20px; border-radius: 110px / 140px; overflow: hidden; border: 2px solid var(--gold); position: relative; }
-        #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-
-        /* Dashboard */
-        .dashboard { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; text-align: left; padding: 20px; }
-        .user-info { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .user-photo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; background: #222; }
-        .user-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .card { background: var(--card-bg); border: 1px solid #222; padding: 18px; border-radius: 12px; position: relative; }
-        .card-title { color: var(--secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 5px; }
-        
-        .footer-text { padding: 15px; text-align: center; color: var(--secondary); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #111; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --gold: #f6851b; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; text-align: center; }
+        .wrap { display: flex; flex-direction: column; height: 100vh; padding: 20px; box-sizing: border-box; }
+        .logo { font-size: 28px; letter-spacing: 6px; margin: 40px 0; }
+        .btn { width: 100%; max-width: 300px; padding: 15px; margin: 10px auto; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
+        #v-box { display: none; }
+        video { width: 220px; height: 280px; border-radius: 110px / 140px; border: 2px solid var(--gold); object-fit: cover; }
+        #dash { display: none; text-align: left; }
+        .card { background: #111; padding: 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #222; }
+        .footer { margin-top: auto; padding: 20px; font-size: 9px; color: #888; text-transform: uppercase; border-top: 1px solid #111; }
     </style>
 </head>
 <body>
-
-    <div class="main-container" id="app-content">
-        <div id="home-view">
+    <div class="wrap">
+        <div id="home">
             <div class="logo">BSMLH</div>
-            <div class="btn-group">
-                <button class="primary-btn" onclick="secureLogin()">Войти (NFC)</button>
-                <button class="secondary-btn" onclick="startOnboarding()">Зарегистрироваться</button>
-            </div>
-            <div id="status-msg" style="margin-top:20px; color:var(--gold);"></div>
+            <button class="btn" style="background:#fff;" onclick="login()">Войти (NFC)</button>
+            <button class="btn" style="background:transparent; color:#fff; border:1px solid #333;" onclick="reg()">Регистрация</button>
         </div>
 
-        <div id="camera-ui">
-            <h2 style="margin-bottom:20px;">Биометрия</h2>
-            <div class="video-wrap">
-                <video id="video" autoplay playsinline></video>
-            </div>
-            <button class="primary-btn" style="width:100%;" onclick="capturePhoto()">Сделать фото</button>
+        <div id="v-box">
+            <video id="v" autoplay playsinline></video>
+            <button class="btn" style="background:#fff;" onclick="snap()">Сделать фото</button>
         </div>
 
-        <div id="dynamic-content"></div>
+        <div id="dash">
+            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                <img id="res-img" style="width:60px; height:60px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;">
+                <div id="res-huid" style="font-weight:bold; color:var(--gold);">HUID-XXXX</div>
+            </div>
+            <div class="card"><div>Статус</div><div style="font-size:18px;">Верифицирован 🛡️</div></div>
+            <div class="card"><div>Баланс</div><div style="font-size:18px;">1.00 QRT</div></div>
+            <button class="btn" style="background:transparent; color:#fff; border:1px solid #333; width:100%;" onclick="location.reload()">Выйти</button>
+        </div>
+
+        <footer class="footer">Biometric Security Multi-function Ledger for Humanity</footer>
     </div>
-
-    <div class="dashboard" id="main-dashboard">
-        <div class="user-info">
-            <div class="user-photo"><img id="res-photo" src=""></div>
-            <div>
-                <div style="font-size: 12px; color: var(--secondary);">Личность подтверждена</div>
-                <div id="user-huid-display" style="font-weight: bold; font-size: 16px; color: var(--gold);">HUID-2026-XXXX</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">Статус</div>
-            <div style="font-size: 18px;">Верифицирован 🛡️</div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">QRT Balance</div>
-            <div style="font-size: 18px;">1.00 QRT</div>
-        </div>
-
-        <button class="secondary-btn" style="margin-top: 10px;" onclick="location.reload()">Выйти</button>
-    </div>
-
-    <footer class="footer-text">
-        Biometric Security Multi-function Ledger for Humanity
-    </footer>
-
-    <canvas id="canvas" style="display:none;"></canvas>
+    <canvas id="c" style="display:none;"></canvas>
 
     <script>
-        let photoData = "";
-        let currentStep = 0;
-
-        const steps = [
-            { title: "HUID", desc: "Ваша цифровая личность нового поколения." },
-            { title: "BSMLH CHIP", desc: "Ваше кольцо — единственный ключ к данным." },
-            { title: "Безопасность", desc: "Децентрализованное хранение данных." }
-        ];
-
-        async function startOnboarding() {
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('camera-ui').style.display = 'block';
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('video').srcObject = stream;
+        let p = "";
+        async function reg() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('v-box').style.display = 'block';
+            const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}});
+            document.getElementById('v').srcObject = s;
         }
-
-        function capturePhoto() {
-            const v = document.getElementById('video');
-            const c = document.getElementById('canvas');
-            c.width = v.videoWidth;
-            c.height = v.videoHeight;
+        function snap() {
+            const v = document.getElementById('v');
+            const c = document.getElementById('c');
+            c.width = v.videoWidth; c.height = v.videoHeight;
             c.getContext('2d').drawImage(v, 0, 0);
-            photoData = c.toDataURL('image/png');
-            
-            if (v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
-            document.getElementById('camera-ui').style.display = 'none';
-            renderStep();
+            p = c.toDataURL('image/jpeg', 0.5);
+            v.srcObject.getTracks().forEach(t => t.stop());
+            document.getElementById('v-box').innerHTML = "<h2 style='color:var(--gold)'>Приложите кольцо...</h2>";
+            bind();
         }
-
-        function renderStep() {
-            const content = document.getElementById('dynamic-content');
-            if (currentStep < steps.length) {
-                content.innerHTML = `
-                    <h2 style="margin-bottom: 15px;">${steps[currentStep].title}</h2>
-                    <p style="color: var(--secondary); margin-bottom: 30px;">${steps[currentStep].desc}</p>
-                    <button class="primary-btn" style="width:200px;" onclick="nextStep()">Далее</button>
-                `;
-            } else { renderNFC(); }
-        }
-
-        function nextStep() { currentStep++; renderStep(); }
-
-        function renderNFC() {
-            document.getElementById('dynamic-content').innerHTML = `
-                <h2>Готово</h2>
-                <p id="st-text" style="color:var(--gold); margin-top:20px;">Приложите ваше кольцо для привязки...</p>
-            `;
-            runNFCBinding();
-        }
-
-        async function runNFCBinding() {
-            const huid = "HUID-2026-" + Math.random().toString(16).slice(2,10).toUpperCase();
+        async function bind() {
+            const h = "HUID-2026-" + Math.random().toString(16).slice(2, 8).toUpperCase();
             if ('NDEFReader' in window) {
                 try {
-                    const ndef = new NDEFReader(); await ndef.scan();
-                    ndef.onreading = event => {
-                        save(event.serialNumber, huid);
-                        showDashboard(huid, photoData);
+                    const n = new NDEFReader(); await n.scan();
+                    n.onreading = e => {
+                        localStorage.setItem('u', e.serialNumber); localStorage.setItem('h', h); localStorage.setItem('i', p);
+                        show(h, p);
                     };
-                } catch (e) { save("PC-DEBUG", huid); showDashboard(huid, photoData); }
-            } else { save("PC-DEBUG", huid); showDashboard(huid, photoData); }
+                } catch(e) { pc(h); }
+            } else { pc(h); }
         }
-
-        function save(uid, huid) {
-            localStorage.setItem('nfc_uid', uid);
-            localStorage.setItem('huid', huid);
-            localStorage.setItem('user_p', photoData);
+        function pc(h) { localStorage.setItem('u', 'PC'); localStorage.setItem('h', h); localStorage.setItem('i', p); setTimeout(() => show(h, p), 1000); }
+        function login() {
+            const u = localStorage.getItem('u');
+            if (!u) return alert("Зарегистрируйтесь!");
+            show(localStorage.getItem('h'), localStorage.getItem('i'));
         }
-
-        async function secureLogin() {
-            const savedUID = localStorage.getItem('nfc_uid');
-            if (!savedUID) { alert("Зарегистрируйтесь!"); return; }
-
-            if ('NDEFReader' in window) {
-                try {
-                    const ndef = new NDEFReader(); await ndef.scan();
-                    document.getElementById('status-msg').innerText = "Поднесите кольцо...";
-                    ndef.onreading = event => {
-                        if (event.serialNumber === savedUID) {
-                            showDashboard(localStorage.getItem('huid'), localStorage.getItem('user_p'));
-                        } else { alert("Неверное кольцо!"); }
-                    };
-                } catch (e) { pcLogin(); }
-            } else { pcLogin(); }
-        }
-
-        function pcLogin() {
-            if (prompt("Код (1234):") === "1234") showDashboard(localStorage.getItem('huid'), localStorage.getItem('user_p'));
-        }
-
-        function showDashboard(huid, photo) {
-            document.getElementById('app-content').style.display = 'none';
-            document.getElementById('main-dashboard').style.display = 'flex';
-            document.getElementById('user-huid-display').innerText = huid;
-            document.getElementById('res-photo').src = photo;
+        function show(h, img) {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('v-box').style.display = 'none';
+            document.getElementById('dash').style.display = 'block';
+            document.getElementById('res-huid').innerText = h;
+            document.getElementById('res-img').src = img;
         }
     </script>
 </body>
