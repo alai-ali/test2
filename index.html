@@ -17,18 +17,20 @@
         .logo { font-size: 32px; font-weight: 500; letter-spacing: 8px; margin-bottom: 60px; }
         
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
-        .primary-btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 4px; font-size: 15px; font-weight: 500; cursor: pointer; }
-        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 14px; border-radius: 4px; font-size: 15px; cursor: pointer; }
+        .primary-btn { background: var(--accent); color: #000; border: none; padding: 14px; border-radius: 4px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; }
+        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 14px; border-radius: 4px; font-size: 15px; cursor: pointer; width: 100%; }
 
-        /* Карточки главного экрана */
-        .dashboard { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 450px; text-align: left; padding: 20px; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; position: relative; overflow: hidden; }
-        .card-title { color: var(--secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .card-value { font-size: 24px; font-weight: 500; }
+        /* Dashboard */
+        .dashboard { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 400px; text-align: left; padding: 20px; animation: fadeIn 0.5s ease; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; position: relative; }
+        .card-title { color: var(--secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .card-value { font-size: 22px; font-weight: 500; }
         .status-badge { position: absolute; top: 20px; right: 20px; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
 
-        .footer-note { position: absolute; bottom: 40px; font-size: 12px; color: var(--secondary); text-align: center; width: 100%; }
-        #huid-tag { font-family: monospace; color: var(--gold); margin-top: 15px; font-size: 14px; }
+        .footer-note { position: absolute; bottom: 40px; font-size: 12px; color: var(--secondary); text-align: center; width: 100%; z-index: 1; }
+        #huid-tag { font-family: monospace; color: var(--gold); margin-top: 15px; font-size: 14px; min-height: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -41,21 +43,21 @@
     <div class="main-container" id="app-content">
         <div class="logo">BSMLH</div>
         <div class="btn-group">
-            <button class="primary-btn" id="login-text" onclick="showDashboard()">Войти</button>
-            <button class="secondary-btn" id="reg-text" onclick="startOnboarding()">Зарегистрироваться</button>
+            <button class="primary-btn" id="login-btn-text" onclick="showDashboard()">Войти</button>
+            <button class="secondary-btn" id="reg-btn-text" onclick="startOnboarding()">Зарегистрироваться</button>
         </div>
     </div>
 
     <div class="dashboard" id="main-dashboard">
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 25px;">
             <div style="font-size: 14px; color: var(--secondary);" id="welcome-text">Добро пожаловать,</div>
-            <div id="user-huid-display" style="font-weight: 500; letter-spacing: 1px;">BSM-KZ-2026-BBD565AD</div>
+            <div id="user-huid-display" style="font-weight: 500; letter-spacing: 1px; font-size: 18px;">BSM-KZ-2026-BBD565AD</div>
         </div>
 
         <div class="card">
             <div class="status-badge">Soulbound</div>
-            <div class="card-title" id="card1-title">Личность</div>
-            <div class="card-value" id="card1-val">Верифицирован 🛡️</div>
+            <div class="card-title" id="card-id-label">Личность</div>
+            <div class="card-value" id="card-id-val">Верифицирован 🛡️</div>
         </div>
 
         <div class="card">
@@ -67,12 +69,12 @@
         <div class="card">
             <div class="card-title">QRNC Reputation</div>
             <div class="card-value">1,240 <span style="font-size: 14px; color: var(--secondary);">XP</span></div>
-            <div style="height: 4px; background: #222; width: 100%; margin-top: 10px; border-radius: 2px;">
-                <div style="height: 100%; background: var(--gold); width: 35%; border-radius: 2px;"></div>
+            <div style="height: 4px; background: #222; width: 100%; margin-top: 10px; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; background: var(--gold); width: 35%;"></div>
             </div>
         </div>
 
-        <button class="secondary-btn" style="margin-top: 10px; border-color: #222; font-size: 13px;" onclick="location.reload()">Выйти</button>
+        <button class="secondary-btn" style="margin-top: 10px; border-color: #222; font-size: 13px;" onclick="location.reload()">Выйти / Exit</button>
     </div>
 
     <div class="footer-note" id="footer-text">Universal Human Identification System</div>
@@ -84,9 +86,10 @@
         const translations = {
             ru: {
                 welcome: "Добро пожаловать,",
-                card1: "Личность",
+                cardId: "Личность",
                 verified: "Верифицирован 🛡️",
-                login: "Войти", reg: "Зарегистрироваться",
+                login: "Войти",
+                reg: "Зарегистрироваться",
                 next: "Далее",
                 steps: [
                     { title: "Что такое HUID?", desc: "Ваш уникальный цифровой отпечаток в системе BSMLH." },
@@ -96,13 +99,14 @@
                 kycTitle: "Верификация",
                 kycScan: "📸 Нажмите для сканирования паспорта",
                 statusGen: "⌛ Генерация HUID...",
-                statusOk: "✅ Готово. Приложите чип для активации"
+                statusOk: "✅ Готово. Приложите чип"
             },
             en: {
                 welcome: "Welcome back,",
-                card1: "Identity",
+                cardId: "Identity",
                 verified: "Verified 🛡️",
-                login: "Login", reg: "Register",
+                login: "Login",
+                reg: "Register",
                 next: "Next",
                 steps: [
                     { title: "What is HUID?", desc: "Your unique digital fingerprint in the BSMLH system." },
@@ -112,17 +116,18 @@
                 kycTitle: "Verification",
                 kycScan: "📸 Tap to scan passport",
                 statusGen: "⌛ Generating HUID...",
-                statusOk: "✅ Ready. Tap chip to activate"
+                statusOk: "✅ Ready. Tap chip"
             }
         };
 
         function setLang(lang) {
             selectedLang = lang;
             const d = translations[lang];
-            document.getElementById('footer-text').innerText = "Universal Human Identification System";
+            document.getElementById('login-btn-text').innerText = d.login;
+            document.getElementById('reg-btn-text').innerText = d.reg;
             document.getElementById('welcome-text').innerText = d.welcome;
-            document.getElementById('card1-title').innerText = d.card1;
-            document.getElementById('card1-val').innerText = d.verified;
+            document.getElementById('card-id-label').innerText = d.cardId;
+            document.getElementById('card-id-val').innerText = d.verified;
             
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(lang + '-btn').classList.add('active');
@@ -154,7 +159,7 @@
             document.getElementById('app-content').innerHTML = `
                 <h2 style="margin-bottom: 30px;">${d.kycTitle}</h2>
                 <div id="scan-box" style="border: 1px dashed #333; padding: 40px; border-radius: 8px; cursor: pointer;" onclick="runKYC()">
-                    <span id="st">${d.kycScan}</span>
+                    <span id="st-text">${d.kycScan}</span>
                 </div>
                 <div id="huid-tag"></div>
             `;
@@ -162,13 +167,13 @@
 
         function runKYC() {
             const d = translations[selectedLang];
-            const st = document.getElementById('st');
+            const st = document.getElementById('st-text');
             st.innerText = d.statusGen;
             setTimeout(() => {
                 const id = "BSM-KZ-2026-" + Math.random().toString(16).slice(2,10).toUpperCase();
                 document.getElementById('huid-tag').innerText = id;
                 st.innerText = d.statusOk;
-                st.style.color = var(--gold);
+                st.style.color = "#f6851b";
                 setTimeout(() => { showDashboard(id); }, 2500);
             }, 2000);
         }
