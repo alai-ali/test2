@@ -3,151 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSMLH — Biometric Ledger</title>
+    <title>BSMLH — Identity</title>
     <style>
-        :root { --bg: #000; --text: #fff; --gold: #f6851b; --secondary: #8e8e93; }
+        :root { --bg: #000; --text: #fff; --gold: #f6851b; --grey: #8e8e93; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-        .logo { font-size: 32px; letter-spacing: 8px; margin-bottom: 50px; }
-        .btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-bottom: 12px; border: none; font-weight: bold; }
-        .btn-main { background: #fff; color: #000; }
-        .btn-sec { background: transparent; color: #fff; border: 1px solid #333; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        .content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .logo { font-size: 32px; letter-spacing: 8px; margin-bottom: 40px; }
+        .btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 8px; font-size: 15px; cursor: pointer; border: none; font-weight: bold; margin-bottom: 10px; }
+        .btn-white { background: #fff; color: #000; }
+        .btn-dark { background: transparent; color: #fff; border: 1px solid #333; }
         
-        #camera-zone { display: none; width: 100%; max-width: 320px; }
-        .video-box { width: 240px; height: 320px; margin: 0 auto 20px; border-radius: 120px / 160px; overflow: hidden; border: 2px solid var(--gold); background: #111; }
-        #v { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        #cam-view { display: none; width: 100%; max-width: 320px; text-align: center; }
+        .box { width: 240px; height: 320px; margin: 0 auto 20px; border-radius: 120px / 160px; overflow: hidden; border: 2px solid var(--gold); }
+        #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        #dash { display: none; width: 100%; max-width: 400px; text-align: left; padding: 20px; }
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+        #dashboard { display: none; width: 100%; max-width: 380px; padding: 20px; }
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
         .ava { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; background: #222; }
         .ava img { width: 100%; height: 100%; object-fit: cover; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 12px; }
-        .card-label { color: var(--secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 5px; }
-        
-        .footer { padding: 15px; text-align: center; color: var(--secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #111; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 10px; }
+        .footer { padding: 15px; text-align: center; color: var(--grey); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #111; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="start-screen">
+<div class="content">
+    <div id="main-ui">
         <div class="logo">BSMLH</div>
-        <button class="btn btn-main" onclick="login()">Войти (NFC)</button>
-        <button class="btn btn-sec" onclick="startReg()">Зарегистрироваться</button>
-        <div id="status" style="margin-top: 20px; color: var(--gold); font-size: 14px;"></div>
+        <button class="btn btn-white" onclick="doLogin()">Войти (NFC)</button>
+        <button class="btn btn-dark" onclick="doReg()">Зарегистрироваться</button>
+        <div id="msg" style="margin-top: 20px; color: var(--gold); font-size: 14px;"></div>
     </div>
 
-    <div id="camera-zone">
-        <h2 style="margin-bottom: 20px;">Верификация</h2>
-        <div class="video-box"><video id="v" autoplay playsinline></video></div>
-        <button class="btn btn-main" onclick="takePhoto()">Сделать фото</button>
-        <p id="cam-status" style="font-size: 13px; color: var(--gold); margin-top: 10px;"></p>
+    <div id="cam-view">
+        <h2 style="margin-bottom: 15px;">Верификация</h2>
+        <div class="box"><video id="video" autoplay playsinline></video></div>
+        <button class="btn btn-white" onclick="takePic()">Сделать фото</button>
     </div>
 
-    <div id="dash">
+    <div id="dashboard">
         <div class="header">
-            <div class="ava"><img id="user-img" src=""></div>
+            <div class="ava"><img id="user-ava" src=""></div>
             <div>
-                <div id="user-huid" style="font-weight: bold; color: var(--gold); font-size: 18px;">HUID-XXXX</div>
-                <div style="font-size: 11px; color: var(--secondary);">Verified Ledger Identity</div>
+                <div id="user-huid" style="font-weight: bold; color: var(--gold);">HUID-XXXX</div>
+                <div style="font-size: 11px; color: var(--grey);">Biometric Identity</div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-label">Личность</div>
-            <div style="font-size: 18px;">Верифицирован 🛡️</div>
-        </div>
-        <div class="card">
-            <div class="card-label">QRT Balance</div>
-            <div style="font-size: 18px;">1.00 QRT</div>
-        </div>
-        <button class="btn btn-sec" style="margin-top: 20px; width: 100%;" onclick="location.reload()">Выйти</button>
+        <div class="card"><div style="color:var(--grey); font-size:10px;">СТАТУС</div><div>Верифицирован 🛡️</div></div>
+        <div class="card"><div style="color:var(--grey); font-size:10px;">БАЛАНС</div><div>1.00 QRT</div></div>
+        <button class="btn btn-dark" style="width:100%; margin-top:10px;" onclick="location.reload()">Выйти</button>
     </div>
 </div>
 
-<footer class="footer">
-    Biometric Security Multi-function Ledger for Humanity
-</footer>
+<footer class="footer">Biometric Security Multi-function Ledger for Humanity</footer>
 
-<canvas id="c" style="display:none;"></canvas>
+<canvas id="canvas" style="display:none;"></canvas>
 
 <script>
-    let photoData = "";
+    let photo = "";
 
-    async function startReg() {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('camera-zone').style.display = 'block';
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            document.getElementById('v').srcObject = stream;
-        } catch (e) { alert("Камера недоступна"); }
+    async function doReg() {
+        document.getElementById('main-ui').style.display = 'none';
+        document.getElementById('cam-view').style.display = 'block';
+        const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}});
+        document.getElementById('video').srcObject = s;
     }
 
-    function takePhoto() {
-        const v = document.getElementById('v');
-        const c = document.getElementById('c');
-        c.width = v.videoWidth;
-        c.height = v.videoHeight;
+    function takePic() {
+        const v = document.getElementById('video');
+        const c = document.getElementById('canvas');
+        c.width = v.videoWidth; c.height = v.videoHeight;
         c.getContext('2d').drawImage(v, 0, 0);
-        photoData = c.toDataURL('image/png');
-        
-        if (v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
-        document.getElementById('cam-status').innerText = "Фото готово! Приложите кольцо...";
-        bindNFC();
+        photo = c.toDataURL('image/png');
+        v.srcObject.getTracks().forEach(t => t.stop());
+        document.getElementById('cam-view').innerHTML = "<h2>Приложите кольцо...</h2>";
+        bindRing();
     }
 
-    async function bindNFC() {
-        const huid = "HUID-2026-" + Math.random().toString(16).slice(2, 10).toUpperCase();
+    async function bindRing() {
+        const huid = "HUID-2026-" + Math.random().toString(16).slice(2, 8).toUpperCase();
         if ('NDEFReader' in window) {
             try {
-                const ndef = new NDEFReader();
-                await ndef.scan();
-                ndef.onreading = e => {
-                    localStorage.setItem('u', e.serialNumber);
-                    localStorage.setItem('h', huid);
-                    localStorage.setItem('p', photoData);
-                    openDash(huid, photoData);
+                const n = new NDEFReader(); await n.scan();
+                n.onreading = e => {
+                    localStorage.setItem('ring', e.serialNumber);
+                    localStorage.setItem('huid', huid);
+                    localStorage.setItem('pic', photo);
+                    showDash(huid, photo);
                 };
-            } catch (err) { alert("Ошибка NFC. Попробуйте снова."); }
-        } else {
-            // Для ПК
-            localStorage.setItem('u', 'PC-TEST');
-            localStorage.setItem('h', huid);
-            localStorage.setItem('p', photoData);
-            setTimeout(() => openDash(huid, photoData), 1000);
-        }
+            } catch(e) { save(huid); }
+        } else { save(huid); }
     }
 
-    async function login() {
-        const savedU = localStorage.getItem('u');
-        if (!savedU) { alert("Зарегистрируйтесь!"); return; }
+    function save(h) {
+        localStorage.setItem('ring', 'PC-KEY');
+        localStorage.setItem('huid', h);
+        localStorage.setItem('pic', photo);
+        setTimeout(() => showDash(h, photo), 1000);
+    }
 
+    async function doLogin() {
+        const r = localStorage.getItem('ring');
+        if (!r) return alert("Зарегистрируйтесь!");
         if ('NDEFReader' in window) {
             try {
-                const ndef = new NDEFReader();
-                await ndef.scan();
-                document.getElementById('status').innerText = "Ожидание кольца...";
-                ndef.onreading = e => {
-                    if (e.serialNumber === savedU) {
-                        openDash(localStorage.getItem('h'), localStorage.getItem('p'));
-                    } else { alert("Неверное кольцо!"); }
+                const n = new NDEFReader(); await n.scan();
+                document.getElementById('msg').innerText = "Ожидание кольца...";
+                n.onreading = e => {
+                    if (e.serialNumber === r) showDash(localStorage.getItem('huid'), localStorage.getItem('pic'));
+                    else alert("Чужое кольцо!");
                 };
-            } catch (err) { pcLogin(); }
-        } else { pcLogin(); }
+            } catch(e) { pc(); }
+        } else { pc(); }
     }
 
-    function pcLogin() {
-        if (prompt("Код (1234):") === "1234") {
-            openDash(localStorage.getItem('h'), localStorage.getItem('p'));
-        }
-    }
+    function pc() { if (prompt("Код (1234):") === "1234") showDash(localStorage.getItem('huid'), localStorage.getItem('pic')); }
 
-    function openDash(h, p) {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('camera-zone').style.display = 'none';
-        document.getElementById('dash').style.display = 'block';
+    function showDash(h, p) {
+        document.getElementById('main-ui').style.display = 'none';
+        document.getElementById('cam-view').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
         document.getElementById('user-huid').innerText = h;
-        document.getElementById('user-img').src = p;
+        document.getElementById('user-ava').src = p;
     }
 </script>
 </body>
