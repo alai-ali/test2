@@ -10,19 +10,17 @@
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
         .logo { font-size: 32px; letter-spacing: 8px; margin-bottom: 50px; }
-        .btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-bottom: 10px; border: none; font-weight: bold; }
+        .btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 8px; font-size: 15px; cursor: pointer; margin-bottom: 12px; border: none; font-weight: bold; }
         .btn-main { background: #fff; color: #000; }
         .btn-sec { background: transparent; color: #fff; border: 1px solid #333; }
         
-        /* Camera Section */
         #camera-zone { display: none; width: 100%; max-width: 320px; }
-        .video-box { width: 240px; height: 320px; margin: 0 auto 20px; border-radius: 120px / 160px; overflow: hidden; border: 2px solid var(--gold); position: relative; background: #111; }
+        .video-box { width: 240px; height: 320px; margin: 0 auto 20px; border-radius: 120px / 160px; overflow: hidden; border: 2px solid var(--gold); background: #111; }
         #v { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        /* Dashboard */
         #dash { display: none; width: 100%; max-width: 400px; text-align: left; padding: 20px; }
         .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-        .ava { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; }
+        .ava { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; background: #222; }
         .ava img { width: 100%; height: 100%; object-fit: cover; }
         .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 12px; }
         .card-label { color: var(--secondary); font-size: 10px; text-transform: uppercase; margin-bottom: 5px; }
@@ -37,22 +35,22 @@
         <div class="logo">BSMLH</div>
         <button class="btn btn-main" onclick="login()">Войти (NFC)</button>
         <button class="btn btn-sec" onclick="startReg()">Зарегистрироваться</button>
-        <div id="status" style="margin-top: 20px; color: var(--gold);"></div>
+        <div id="status" style="margin-top: 20px; color: var(--gold); font-size: 14px;"></div>
     </div>
 
     <div id="camera-zone">
         <h2 style="margin-bottom: 20px;">Верификация</h2>
         <div class="video-box"><video id="v" autoplay playsinline></video></div>
         <button class="btn btn-main" onclick="takePhoto()">Сделать фото</button>
-        <p id="cam-status" style="font-size: 13px; color: var(--secondary);"></p>
+        <p id="cam-status" style="font-size: 13px; color: var(--gold); margin-top: 10px;"></p>
     </div>
 
     <div id="dash">
         <div class="header">
             <div class="ava"><img id="user-img" src=""></div>
             <div>
-                <div id="user-huid" style="font-weight: bold; color: var(--gold);">HUID-XXXX</div>
-                <div style="font-size: 11px; color: var(--secondary);">Biometric Identity</div>
+                <div id="user-huid" style="font-weight: bold; color: var(--gold); font-size: 18px;">HUID-XXXX</div>
+                <div style="font-size: 11px; color: var(--secondary);">Verified Ledger Identity</div>
             </div>
         </div>
         <div class="card">
@@ -63,7 +61,7 @@
             <div class="card-label">QRT Balance</div>
             <div style="font-size: 18px;">1.00 QRT</div>
         </div>
-        <button class="btn btn-sec" style="margin-top: 20px;" onclick="location.reload()">Выйти</button>
+        <button class="btn btn-sec" style="margin-top: 20px; width: 100%;" onclick="location.reload()">Выйти</button>
     </div>
 </div>
 
@@ -79,8 +77,10 @@
     async function startReg() {
         document.getElementById('start-screen').style.display = 'none';
         document.getElementById('camera-zone').style.display = 'block';
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        document.getElementById('v').srcObject = stream;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('v').srcObject = stream;
+        } catch (e) { alert("Камера недоступна"); }
     }
 
     function takePhoto() {
@@ -91,8 +91,8 @@
         c.getContext('2d').drawImage(v, 0, 0);
         photoData = c.toDataURL('image/png');
         
-        v.srcObject.getTracks().forEach(t => t.stop());
-        document.getElementById('cam-status').innerText = "Фото принято. Приложите кольцо...";
+        if (v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
+        document.getElementById('cam-status').innerText = "Фото готово! Приложите кольцо...";
         bindNFC();
     }
 
@@ -103,22 +103,24 @@
                 const ndef = new NDEFReader();
                 await ndef.scan();
                 ndef.onreading = e => {
-                    save(e.serialNumber, huid);
+                    localStorage.setItem('u', e.serialNumber);
+                    localStorage.setItem('h', huid);
+                    localStorage.setItem('p', photoData);
                     openDash(huid, photoData);
                 };
-            } catch (err) { save("PC-USER", huid); openDash(huid, photoData); }
-        } else { save("PC-USER", huid); openDash(huid, photoData); }
-    }
-
-    function save(uid, huid) {
-        localStorage.setItem('u', uid);
-        localStorage.setItem('h', huid);
-        localStorage.setItem('p', photoData);
+            } catch (err) { alert("Ошибка NFC. Попробуйте снова."); }
+        } else {
+            // Для ПК
+            localStorage.setItem('u', 'PC-TEST');
+            localStorage.setItem('h', huid);
+            localStorage.setItem('p', photoData);
+            setTimeout(() => openDash(huid, photoData), 1000);
+        }
     }
 
     async function login() {
         const savedU = localStorage.getItem('u');
-        if (!savedU) { alert("Сначала регистрация!"); return; }
+        if (!savedU) { alert("Зарегистрируйтесь!"); return; }
 
         if ('NDEFReader' in window) {
             try {
@@ -128,13 +130,13 @@
                 ndef.onreading = e => {
                     if (e.serialNumber === savedU) {
                         openDash(localStorage.getItem('h'), localStorage.getItem('p'));
-                    } else { alert("Чужое кольцо!"); }
+                    } else { alert("Неверное кольцо!"); }
                 };
-            } catch (err) { pc(); }
-        } else { pc(); }
+            } catch (err) { pcLogin(); }
+        } else { pcLogin(); }
     }
 
-    function pc() {
+    function pcLogin() {
         if (prompt("Код (1234):") === "1234") {
             openDash(localStorage.getItem('h'), localStorage.getItem('p'));
         }
