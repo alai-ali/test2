@@ -3,144 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSMLH — Secure HUID</title>
+    <title>BSMLH</title>
     <style>
-        :root { --bg: #000; --text: #fff; --gold: #f6851b; --card: #111; --sec: #8e8e93; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-        .logo { font-size: 28px; letter-spacing: 8px; margin-bottom: 50px; font-weight: 500; }
-        .btn { width: 100%; max-width: 300px; padding: 15px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; margin-bottom: 12px; font-size: 15px; }
-        .btn-w { background: #fff; color: #000; }
-        .btn-b { background: transparent; color: #fff; border: 1px solid #333; }
-        
-        /* Camera */
-        #cam-ui { display: none; width: 100%; }
-        .v-box { width: 200px; height: 260px; margin: 0 auto 20px; border-radius: 100px / 130px; overflow: hidden; border: 2px solid var(--gold); background: #050505; }
-        #v { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Dashboard */
-        #dash { display: none; width: 100%; max-width: 400px; text-align: left; padding: 20px; animation: fadeIn 0.4s ease; }
-        .u-hdr { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .u-ava { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; }
-        .card { background: var(--card); border: 1px solid #222; padding: 20px; border-radius: 12px; margin-bottom: 12px; position: relative; }
-        .badge { position: absolute; top: 15px; right: 15px; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); padding: 2px 8px; border-radius: 10px; }
-        .c-lbl { color: var(--sec); font-size: 11px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-        
-        .ftr { padding: 15px; text-align: center; color: var(--sec); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #111; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; }
+        .card { background: #111; border: 1px solid #222; padding: 15px; border-radius: 10px; margin: 10px; text-align: left; }
+        .btn { width: 90%; padding: 15px; margin: 10px 0; border-radius: 5px; border: none; font-weight: bold; }
+        #v { width: 160px; height: 160px; border-radius: 50%; border: 2px solid #f6851b; object-fit: cover; }
     </style>
 </head>
 <body>
-
-<div class="main">
-    <div id="home">
-        <div class="logo">BSMLH</div>
-        <button class="btn btn-w" onclick="login()">Войти (NFC)</button>
-        <button class="btn btn-b" onclick="reg()">Зарегистрироваться</button>
-        <div id="st" style="margin-top:20px; color:var(--gold); font-size:13px;"></div>
+    <div id="step1">
+        <h1 style="letter-spacing:5px; margin-top:50px;">BSMLH</h1>
+        <button class="btn" style="background:#fff;" onclick="login()">ВОЙТИ (NFC)</button>
+        <button class="btn" style="background:#222; color:#fff;" onclick="reg()">РЕГИСТРАЦИЯ</button>
     </div>
 
-    <div id="cam-ui">
-        <div class="v-box"><video id="v" autoplay playsinline></video></div>
-        <button class="btn btn-w" onclick="snap()">Сделать фото</button>
+    <div id="step2" style="display:none; padding:20px;">
+        <video id="video" autoplay playsinline style="width:160px; height:160px; border-radius:50%;"></video><br>
+        <button class="btn" style="background:#f6851b;" onclick="snap()">СДЕЛАТЬ ФОТО</button>
     </div>
 
-    <div id="dash">
-        <div class="u-hdr">
-            <div class="u-ava"><img id="res-i" style="width:100%; height:100%; object-fit:cover;"></div>
-            <div>
-                <div style="font-size:13px; color:var(--sec);">Добро пожаловать,</div>
-                <div id="res-h" style="font-weight:bold; font-size:16px; color:var(--gold);">HUID-2026-XXXX</div>
-            </div>
+    <div id="step3" style="display:none; padding:20px;">
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+            <img id="photo" style="width:60px; height:60px; border-radius:50%; border:1px solid #f6851b;">
+            <b id="huid" style="color:#f6851b;">HUID-XXXX</b>
         </div>
-        <div class="card">
-            <div class="badge">Soulbound</div>
-            <div class="c-lbl">Личность</div>
-            <div style="font-size:20px;">Верифицирован 🛡️</div>
-        </div>
-        <div class="card">
-            <div class="c-lbl">QRT Balance</div>
-            <div style="font-size:20px;">1.00 QRT</div>
-            <div style="color:#4f4; font-size:11px; margin-top:5px;">+1.00 Registration</div>
-        </div>
-        <button class="btn btn-b" style="width:100%; margin-top:10px;" onclick="location.reload()">Выйти</button>
+        <div class="card"><small style="color:#888;">СТАТУС</small><br>Верифицирован 🛡️</div>
+        <div class="card"><small style="color:#888;">QRT BALANCE</small><br>1.00 QRT</div>
+        <button class="btn" style="background:#222; color:#fff;" onclick="location.reload()">ВЫХОД</button>
     </div>
-</div>
 
-<footer class="ftr">Biometric Security Multi-function Ledger for Humanity</footer>
-<canvas id="c" style="display:none;"></canvas>
+    <footer style="position:fixed; bottom:10px; width:100%; font-size:9px; color:#444;">
+        BIOMETRIC SECURITY MULTI-FUNCTION LEDGER FOR HUMANITY
+    </footer>
 
-<script>
-    let photo = "";
+    <canvas id="c" style="display:none;"></canvas>
 
-    async function reg() {
-        document.getElementById('home').style.display = 'none';
-        document.getElementById('cam-ui').style.display = 'block';
-        try {
-            const s = await navigator.mediaDevices.getUserMedia({video: {facingMode: "user"}});
-            document.getElementById('v').srcObject = s;
-        } catch(e) { alert("Включите камеру в настройках"); location.reload(); }
-    }
-
-    function snap() {
-        const v = document.getElementById('v');
-        const c = document.getElementById('c');
-        // Делаем фото крошечным (150x200) для экономии места
-        c.width = 150; c.height = 200;
-        c.getContext('2d').drawImage(v, 0, 0, 150, 200);
-        photo = c.toDataURL('image/jpeg', 0.3); // Максимальное сжатие
-        
-        if (v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
-        document.getElementById('cam-ui').innerHTML = "<h2 style='color:var(--gold)'>Готово. Приложите чип...</h2>";
-        bind();
-    }
-
-    async function bind() {
-        const h = "HUID-2026-" + Math.random().toString(16).slice(2, 10).toUpperCase();
-        if ('NDEFReader' in window) {
-            try {
-                const n = new NDEFReader(); await n.scan();
-                n.onreading = e => {
-                    localStorage.setItem('u', e.serialNumber);
-                    localStorage.setItem('h', h);
-                    localStorage.setItem('i', photo);
-                    show(h, photo);
-                };
-            } catch(e) { pc(h); }
-        } else { pc(h); }
-    }
-
-    function pc(h) {
-        localStorage.setItem('u', 'KEY-PC');
-        localStorage.setItem('h', h);
-        localStorage.setItem('i', photo);
-        setTimeout(() => show(h, photo), 1200);
-    }
-
-    async function login() {
-        const savedU = localStorage.getItem('u');
-        if (!savedU) { alert("Зарегистрируйтесь!"); return; }
-        
-        if ('NDEFReader' in window) {
-            try {
-                const n = new NDEFReader(); await n.scan();
-                document.getElementById('st').innerText = "Поднесите кольцо...";
-                n.onreading = e => {
-                    if (e.serialNumber === savedU) show(localStorage.getItem('h'), localStorage.getItem('i'));
-                    else alert("Доступ запрещен!");
-                };
-            } catch(e) { if(prompt("Код:")==="1234") show(localStorage.getItem('h'), localStorage.getItem('i')); }
-        } else { if(prompt("Код:")==="1234") show(localStorage.getItem('h'), localStorage.getItem('i')); }
-    }
-
-    function show(h, img) {
-        document.getElementById('home').style.display = 'none';
-        document.getElementById('cam-ui').style.display = 'none';
-        document.getElementById('dash').style.display = 'block';
-        document.getElementById('res-h').innerText = h;
-        document.getElementById('res-i').src = img;
-    }
-</script>
+    <script>
+        let imgData = "";
+        async function reg() {
+            document.getElementById('step1').style.display='none';
+            document.getElementById('step2').style.display='block';
+            const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
+            document.getElementById('video').srcObject = s;
+        }
+        function snap() {
+            const v = document.getElementById('video');
+            const canvas = document.getElementById('c');
+            canvas.width = 100; canvas.height = 100; // Микро-размер для обхода ошибок
+            canvas.getContext('2d').drawImage(v, 0, 0, 100, 100);
+            imgData = canvas.toDataURL('image/jpeg', 0.2); // Сверх-сжатие
+            v.srcObject.getTracks().forEach(t => t.stop());
+            
+            const h = "HUID-" + Math.random().toString(16).slice(2,8).toUpperCase();
+            localStorage.setItem('u_id', 'KEY-1');
+            localStorage.setItem('u_h', h);
+            localStorage.setItem('u_p', imgData);
+            show(h, imgData);
+        }
+        function login() {
+            const h = localStorage.getItem('u_h');
+            if(!h) return alert("Нужна регистрация");
+            show(h, localStorage.getItem('u_p'));
+        }
+        function show(h, p) {
+            document.getElementById('step1').style.display='none';
+            document.getElementById('step2').style.display='none';
+            document.getElementById('step3').style.display='block';
+            document.getElementById('huid').innerText = h;
+            document.getElementById('photo').src = p;
+        }
+    </script>
 </body>
 </html>
