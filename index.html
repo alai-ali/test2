@@ -2,88 +2,78 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BSMLH — Biometric Ledger</title>
     <style>
         :root { --bg: #000; --text: #fff; --secondary: #8e8e93; --gold: #f6851b; --accent: #fff; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Layout */
-        .app-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; position: relative; }
-        .logo { font-size: 32px; font-weight: 500; letter-spacing: 8px; margin-bottom: 60px; text-align: center; }
+        .app-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; }
+        .logo { font-size: 28px; font-weight: 500; letter-spacing: 8px; margin-bottom: 50px; }
         
-        /* Buttons */
-        .btn-group { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
-        .primary-btn { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 16px; border-radius: 6px; font-size: 15px; cursor: pointer; }
+        .btn-group { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+        .primary-btn { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .secondary-btn { background: transparent; color: var(--text); border: 1px solid #333; padding: 16px; border-radius: 8px; font-size: 15px; cursor: pointer; }
 
-        /* Camera / Biometry */
-        #camera-container { display: none; width: 100%; max-width: 350px; text-align: center; }
-        .video-wrapper { width: 260px; height: 340px; margin: 0 auto 30px; border-radius: 130px / 170px; overflow: hidden; border: 2px solid var(--gold); position: relative; background: #111; }
+        /* Biometry */
+        #camera-container { display: none; width: 100%; max-width: 350px; }
+        .video-wrapper { width: 240px; height: 320px; margin: 0 auto 25px; border-radius: 120px / 160px; overflow: hidden; border: 2px solid var(--gold); position: relative; background: #050505; }
         #video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: var(--gold); top: 0; box-shadow: 0 0 15px var(--gold); animation: scan 3s infinite linear; }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: var(--gold); top: 0; box-shadow: 0 0 15px var(--gold); animation: scan 2.5s infinite linear; }
 
         /* Dashboard */
-        .dashboard { display: none; width: 100%; max-width: 400px; animation: fadeIn 0.6s ease; }
-        .user-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-        .avatar-box { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; background: #222; }
+        .dashboard { display: none; width: 100%; max-width: 380px; text-align: left; animation: fadeIn 0.5s ease; }
+        .user-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; background: #0a0a0a; padding: 15px; border-radius: 12px; }
+        .avatar-box { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 14px; margin-bottom: 12px; position: relative; }
-        .card-title { color: var(--secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-        .card-val { font-size: 20px; font-weight: 500; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 12px; position: relative; }
+        .card-title { color: var(--secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .card-val { font-size: 22px; font-weight: 500; }
 
-        /* Footer */
-        .global-footer { padding: 20px; text-align: center; color: var(--secondary); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; width: 100%; background: var(--bg); border-top: 1px solid #111; }
+        .global-footer { padding: 15px; text-align: center; color: var(--secondary); font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; width: 100%; background: #000; border-top: 1px solid #111; position: fixed; bottom: 0; left: 0; }
 
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         canvas { display: none; }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
-        <div id="home-view" style="width: 100%; text-align: center;">
+        <div id="home-view">
             <div class="logo">BSMLH</div>
-            <div class="btn-group" style="margin: 0 auto;">
+            <div class="btn-group">
                 <button class="primary-btn" onclick="secureLogin()">Войти (NFC)</button>
                 <button class="secondary-btn" onclick="startRegistration()">Зарегистрироваться</button>
             </div>
         </div>
 
         <div id="camera-container">
-            <h2 style="margin-bottom: 10px;">Верификация</h2>
-            <p style="color: var(--secondary); margin-bottom: 30px; font-size: 14px;">Поместите лицо в рамку для создания HUID</p>
+            <h2 style="margin-bottom: 10px;">Face ID</h2>
             <div class="video-wrapper">
                 <video id="video" autoplay playsinline></video>
                 <div class="scan-line"></div>
             </div>
-            <button class="primary-btn" id="capture-btn" style="display: none;">Захват лица</button>
-            <div id="reg-status" style="color: var(--gold); font-size: 14px;">Ожидание биометрии...</div>
+            <div id="reg-status" style="color: var(--gold); font-size: 14px; font-family: monospace;">Инициализация...</div>
         </div>
 
         <div class="dashboard" id="main-dashboard">
             <div class="user-header">
                 <div class="avatar-box"><img id="user-photo" src="" alt=""></div>
                 <div>
-                    <div style="font-size: 12px; color: var(--secondary);">Добро пожаловать,</div>
-                    <div id="huid-display" style="font-weight: bold; font-size: 16px;">HUID-XXXX</div>
+                    <div id="huid-display" style="font-weight: bold; font-size: 16px; color: var(--gold);">HUID-XXXX</div>
+                    <div style="font-size: 11px; color: var(--secondary);">Verified Ledger Identity</div>
                 </div>
             </div>
             <div class="card">
                 <div style="position: absolute; top: 15px; right: 20px; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); padding: 2px 6px; border-radius: 4px;">Soulbound</div>
-                <div class="card-title">Статус Личности</div>
+                <div class="card-title">Personal Status</div>
                 <div class="card-val">Верифицирован 🛡️</div>
             </div>
-            <div class="card" onclick="alert('Запись идеи в Ledger...')">
-                <div class="card-title">Баланс QRT</div>
-                <div class="card-val">1.00 QRT</div>
-                <div style="color: #44ff44; font-size: 10px; margin-top: 5px;">+1.00 Registration</div>
-            </div>
             <div class="card">
-                <div class="card-title">Репутация QRNC</div>
-                <div class="card-val">0.01 XP</div>
+                <div class="card-title">Balance QRT</div>
+                <div class="card-val">1.00 QRT</div>
             </div>
             <button class="secondary-btn" style="width: 100%; margin-top: 10px;" onclick="location.reload()">Выйти</button>
         </div>
@@ -99,22 +89,24 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const photoDisplay = document.getElementById('user-photo');
+        const status = document.getElementById('reg-status');
 
         async function startRegistration() {
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('camera-container').style.display = 'block';
-            
+            status.innerText = "Смотрите в камеру...";
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 video.srcObject = stream;
-                // Автоматический захват через 3 секунды после включения камеры
-                setTimeout(capturePhoto, 3500);
+                setTimeout(captureStep, 3000);
             } catch (err) {
-                alert("Ошибка доступа к камере: " + err);
+                alert("Камера недоступна. Проверьте разрешения.");
+                location.reload();
             }
         }
 
-        function capturePhoto() {
+        function captureStep() {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -124,14 +116,15 @@
             localStorage.setItem('user_avatar', imageData);
             photoDisplay.src = imageData;
 
-            // Останавливаем камеру
-            video.srcObject.getTracks().forEach(track => track.stop());
-            
-            document.getElementById('reg-status').innerText = "✅ Биометрия принята. Приложите чип...";
-            bindRing();
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+
+            status.innerText = "HUID сгенерирован! Приложите чип...";
+            bindStep();
         }
 
-        async function bindRing() {
+        async function bindStep() {
             const newHuid = "HUID-2026-" + Math.random().toString(16).slice(2, 10).toUpperCase();
             if ('NDEFReader' in window) {
                 try {
@@ -142,35 +135,36 @@
                         localStorage.setItem('huid', newHuid);
                         showDashboard(newHuid, localStorage.getItem('user_avatar'));
                     };
-                } catch (e) { finishSim(newHuid); }
-            } else { finishSim(newHuid); }
+                } catch (e) { saveAndProceed(newHuid); }
+            } else { saveAndProceed(newHuid); }
         }
 
-        function finishSim(huid) {
-            localStorage.setItem('nfc_uid', 'PC-MASTER');
+        function saveAndProceed(huid) {
+            localStorage.setItem('nfc_uid', 'SIMULATED-KEY');
             localStorage.setItem('huid', huid);
-            setTimeout(() => showDashboard(huid, localStorage.getItem('user_avatar')), 1500);
+            setTimeout(() => showDashboard(huid, localStorage.getItem('user_avatar')), 2000);
         }
 
         async function secureLogin() {
             const savedUID = localStorage.getItem('nfc_uid');
-            if (!savedUID) { alert("Сначала зарегистрируйтесь!"); return; }
+            if (!savedUID) { alert("Данные не найдены. Зарегистрируйтесь."); return; }
 
             if ('NDEFReader' in window) {
                 try {
                     const ndef = new NDEFReader();
                     await ndef.scan();
+                    status.innerText = "Ожидание кольца..."; // Если вы на главной
                     ndef.onreading = event => {
                         if (event.serialNumber === savedUID) {
                             showDashboard(localStorage.getItem('huid'), localStorage.getItem('user_avatar'));
-                        } else { alert("Ошибка: Неизвестный чип!"); }
+                        } else { alert("Ошибка: Неверный чип!"); }
                     };
-                } catch (e) { pcFallback(); }
-            } else { pcFallback(); }
+                } catch (e) { pcLogin(); }
+            } else { pcLogin(); }
         }
 
-        function pcFallback() {
-            if (prompt("Введите код доступа (1234):") === "1234") {
+        function pcLogin() {
+            if (prompt("Введите код (1234):") === "1234") {
                 showDashboard(localStorage.getItem('huid'), localStorage.getItem('user_avatar'));
             }
         }
